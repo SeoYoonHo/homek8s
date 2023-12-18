@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: elk
+  name: notice-board
+  labels:
+    app: notice-board
+spec:
+  ports:
+  - port: 33001
+    name: view
+    targetPort: 8080
+    nodePort: 30931
+  type: NodePort
+  selector:
+    app: notice-board
