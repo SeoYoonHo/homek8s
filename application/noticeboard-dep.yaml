@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: elk
+  namespace: app
   name: notice-board
   labels:
     app: notice-board
