@@ -12,9 +12,9 @@ spec:
       name: https
       protocol: HTTPS
     tls:
-    #   mode: PASSTHROUGH
-      mode: SIMPLE
-      credentialName: soeyoonho-tls
+      mode: PASSTHROUGH
+      # mode: SIMPLE
+      # credentialName: soeyoonho-tls
     hosts:
     - "dashboard.seoyoonho.com"
 ---
@@ -28,12 +28,15 @@ spec:
   - "dashboard.seoyoonho.com"
   gateways:
   - kubernetes-dashboard-gateway
-  http:
+  tls:
   - match:
-    - uri:
-        prefix: /
+    - port: 443
+      sniHosts: 
+      - dashboard.seoyoonho.com
+    # - uri:
+    #     prefix: /
     route:
     - destination:
         host: kubernetes-dashboard
-        port:
-          number: 443
+        # port:
+        #   number: 443

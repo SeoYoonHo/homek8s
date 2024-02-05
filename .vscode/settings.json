@@ -16,5 +16,10 @@
     "vs-kubernetes.local-tunnel-debug-provider": "",
     "checkForMinikubeUpgrade": true,
     "imageBuildTool": "Docker"
+  },
+  "yaml.schemas": {
+    "Kubernetes": "*.yaml",
+    "file:/Users/seoyoonho/Project/kube/crd.yaml": "*.yaml",
+    "file:///Users/seoyoonho/Project/kube/crd.yaml": "file:///Users/seoyoonho/Project/kube/dashboard/dashboard-gateway.yaml"
   }
 }
