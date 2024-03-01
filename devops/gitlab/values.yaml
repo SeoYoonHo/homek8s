@@ -1242,7 +1242,7 @@ shared-secrets:
 ## Installation & configuration of gitlab/gitlab-runner
 ## See requirements.yaml for current version
 gitlab-runner:
-  install: false
+  install: true
   rbac:
     create: true
   runners:

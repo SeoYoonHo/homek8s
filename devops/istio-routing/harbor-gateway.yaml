@@ -1,0 +1,41 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: harbor-gateway
+  namespace: harbor
+spec:
+  selector:
+    istio: ingressgateway # Istio의 기본 Ingress Gateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls: 
+      mode: PASSTHROUGH
+    hosts:
+    - "harbor.seoyoonho.com"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: harbor-virtualservice
+  namespace: harbor
+spec:
+  hosts:
+  - "harbor.seoyoonho.com"
+  gateways:
+  - harbor-gateway
+  tls:
+  - match:
+    - port: 443
+      sniHosts: 
+      - harbor.seoyoonho.com
+    # - uri:
+    #     prefix: /
+    route:
+    - destination:
+        host: harbor
+        # port:
+        #   number: 443
