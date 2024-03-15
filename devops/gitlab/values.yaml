@@ -62,18 +62,18 @@ global:
   hosts:
     domain: seoyoonho.com
     hostSuffix:
-    https: true
+    https: false
     externalIP:
     ssh: ~
     gitlab: 
       name: gitlab.seoyoonho.com
-      https: true
-    minio: 
+      https: false
+    minio:
       name: minio.seoyoonho.com
-      https: true
+      https: false
     registry: 
       name: registry.seoyoonho.com
-      https: true
+      https: false
     tls: {}
     smartcard: {}
     kas: {}
@@ -82,15 +82,15 @@ global:
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
     apiVersion: ""
-    configureCertmanager: true
+    configureCertmanager: false
     useNewIngressForCerts: false
     provider: nginx
     # class:
     annotations: {}
     enabled: true
-    tls: {}
-    #   enabled: true
-    #   secretName:
+    tls: 
+      enabled: true
+      secretName: wildcard-tls
     path: /
     pathType: Prefix
 
@@ -887,7 +887,7 @@ upgradeCheck:
 certmanager-issuer:
 #   # The email address to register certificates requested from Let's Encrypt.
 #   # Required if using Let's Encrypt.
-  email: email@example.com
+  email: gogoy2643@gmail.com
 
 ## Installation & configuration of jetstack/cert-manager
 ## See requirements.yaml for current version
@@ -1243,28 +1243,54 @@ shared-secrets:
 ## See requirements.yaml for current version
 gitlab-runner:
   install: true
+  replicas: 1
+  gitlabUrl: http://gitlab-webservice-default.gitlab:8181
+  runnerToken: glrt-hHNvaeWymuRKq9HMGqWa
+  certsSecretName: wildcard-tls
   rbac:
     create: true
+    rules: 
+    - resources: ["configmaps", "events", "pods", "pods/attach", "pods/exec", "secrets", "services"]
+      verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
+    - apiGroups: [""]
+      resources: ["pods/exec"]
+      verbs: ["create", "patch", "delete"]
+    - apiGroups: [""]
+      resources: ["pods/log"]
+      verbs: ["get"]
+  # runners:
+  #   locked: false
+  #   # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
+  #   # The parent/GitLab chart overrides the template to render the actual secret name.
+  #   secret: "nonempty"
+  #   config: |
+  #     [[runners]]
+  #       clone_url= "http://gitlab-webservice-default.gitlab:8181"
+  #       environment = ["GIT_SSL_NO_VERIFY=true"]
+  #       [runners.kubernetes]
+  #         namespace = "{{.Release.Namespace}}"
+  #         image = "alpine"
   runners:
-    locked: false
-    # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
-    # The parent/GitLab chart overrides the template to render the actual secret name.
-    secret: "nonempty"
+    privileged: true  # DinD를 위해 필요
+    image: docker:19.03.12
+    tags: "docker,kubernetes"
     config: |
       [[runners]]
+        clone_url= "http://gitlab-webservice-default.gitlab:8181"
+        environment = ["GIT_SSL_NO_VERIFY=true"]
         [runners.kubernetes]
-        image = "ubuntu:22.04"
-        {{- if .Values.global.minio.enabled }}
-        [runners.cache]
-          Type = "s3"
-          Path = "gitlab-runner"
-          Shared = true
-          [runners.cache.s3]
-            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
-            BucketName = "runner-cache"
-            BucketLocation = "us-east-1"
-            Insecure = false
-        {{ end }}
+          namespace = "{{.Release.Namespace}}"
+          image = "docker:19.03.12"
+          privileged = true
+          [[runners.kubernetes.volumes.host_path]]
+            name = "docker-certs"
+            mount_path = "/certs/client"
+            read_only = true
+          [[runners.kubernetes.volumes.host_path]]
+            name = "var-run-docker-sock"
+            mount_path = "/var/run/docker.sock"
+    services:
+      - name: docker:dind
   podAnnotations:
     gitlab.com/prometheus_scrape: "true"
     gitlab.com/prometheus_port: 9252
