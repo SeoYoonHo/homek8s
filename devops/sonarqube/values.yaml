@@ -372,7 +372,7 @@ resources:
     memory: 2Gi
 
 persistence:
-  enabled: false
+  enabled: true
   ## Set annotations on pvc
   annotations: {}
 
@@ -386,7 +386,7 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass:
+  storageClass: synology-nfs
   accessMode: ReadWriteOnce
   size: 5Gi
   uid: 1000
@@ -472,7 +472,7 @@ postgresql:
     enabled: true
     accessMode: ReadWriteOnce
     size: 20Gi
-    storageClass:
+    storageClass: synology-nfs
   securityContext:
     # For standard Kubernetes deployment, set enabled=true
     # If using OpenShift, enabled=false for restricted SCC and enabled=true for anyuid/nonroot SCC
