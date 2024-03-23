@@ -2,8 +2,8 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: harbor-gateway
-  namespace: harbor
+  name: jenkins-gateway
+  namespace: jenkins
 spec:
   selector:
     istio: ingressgateway # Istio의 기본 Ingress Gateway
@@ -13,22 +13,22 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "harbor.seoyoonho.com"
+    - "jenkins.seoyoonho.com"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: harbor-virtualservice
-  namespace: harbor
+  name: jenkins-virtualservice
+  namespace: jenkins
 spec:
   hosts:
-  - "harbor.seoyoonho.com"
+  - "jenkins.seoyoonho.com"
   gateways:
-  - harbor-gateway
+  - jenkins-gateway
   http:
   - match:
-    - uri:
-        prefix: /
+    - uri: 
+        prefix: "/"
     route:
     - destination:
-        host: harbor
+        host: jenkins

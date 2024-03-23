@@ -9,9 +9,11 @@ spec:
     istio: ingressgateway # Istio의 기본 Ingress Gateway
   servers:
   - port:
-      number: 80
-      name: http
-      protocol: HTTP
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls: 
+      mode: PASSTHROUGH
     hosts:
     - "harbor.seoyoonho.com"
 ---
@@ -25,10 +27,15 @@ spec:
   - "harbor.seoyoonho.com"
   gateways:
   - harbor-gateway
-  http:
+  tls:
   - match:
-    - uri:
-        prefix: /
+    - port: 443
+      sniHosts: 
+      - harbor.seoyoonho.com
+    # - uri:
+    #     prefix: /
     route:
     - destination:
         host: harbor
+        # port:
+        #   number: 443
